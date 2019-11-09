@@ -46,6 +46,7 @@ import com.android.internal.os.DeviceKeyHandler;
 import com.android.internal.util.ArrayUtils;
 import com.asus.zenmotions.util.ActionConstants;
 import com.asus.zenmotions.util.Action;
+import com.asus.zenmotions.util.Utils;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.text.TextUtils;
@@ -56,67 +57,33 @@ public class KeyHandler implements DeviceKeyHandler {
     private static final int GESTURE_REQUEST = 1;
     private static final int GESTURE_WAKELOCK_DURATION = 2000;
     private static final boolean DEBUG = true;
-    private static final String KEY_CONTROL_PATH = "/proc/s1302/virtual_key";
-    private static final String FPC_CONTROL_PATH = "/sys/devices/soc/soc:fpc_fpc1020/proximity_state";
 
-    private static final String PROP_HAPTIC_FEEDBACK = "persist.asus.gesture_haptic";
     // Supported scancodes
+    private static final int GESTURE_DOUBLE_TAP_SCANCODE = 260;
     private static final int GESTURE_C_SCANCODE = 249;
     private static final int GESTURE_E_SCANCODE = 250;
     private static final int GESTURE_S_SCANCODE = 251;
     private static final int GESTURE_V_SCANCODE = 252;
     private static final int GESTURE_W_SCANCODE = 253;
     private static final int GESTURE_Z_SCANCODE = 254;
-    private static final int GESTURE_SWIPE_UP = 255;
-    private static final int GESTURE_SWIPE_DOWN = 256;
-    private static final int GESTURE_SWIPE_LEFT = 257;
-    private static final int GESTURE_SWIPE_RIGHT = 258;
-    private static final int GESTURE_DOUBLE_TAP = 260;
+    private static final int GESTURE_SWIPE_UP_SCANCODE = 255;
+    private static final int GESTURE_SWIPE_DOWN_SCANCODE = 256;
+    private static final int GESTURE_SWIPE_LEFT_SCANCODE = 257;
+    private static final int GESTURE_SWIPE_RIGHT_SCANCODE = 258;
 
-    // Slider
-     private static final int KEYCODE_SLIDER_TOP = 601;
-     private static final int KEYCODE_SLIDER_MIDDLE = 602;
-     private static final int KEYCODE_SLIDER_BOTTOM = 603;
-     private static final int KEY_DOUBLE_TAP = 143;
      private static final int[] sSupportedGestures = new int[]{
+        GESTURE_DOUBLE_TAP_SCANCODE,
         GESTURE_C_SCANCODE,
         GESTURE_E_SCANCODE,
         GESTURE_V_SCANCODE,
         GESTURE_W_SCANCODE,
         GESTURE_S_SCANCODE,
         GESTURE_Z_SCANCODE,
-	GESTURE_SWIPE_UP,
-	GESTURE_SWIPE_DOWN,
-	GESTURE_SWIPE_LEFT,
-	GESTURE_SWIPE_RIGHT,
-        GESTURE_DOUBLE_TAP,
-        KEYCODE_SLIDER_TOP,
-        KEYCODE_SLIDER_MIDDLE,
-        KEYCODE_SLIDER_BOTTOM
+        GESTURE_SWIPE_UP_SCANCODE,
+	GESTURE_SWIPE_DOWN_SCANCODE,
+	GESTURE_SWIPE_LEFT_SCANCODE,
+	GESTURE_SWIPE_RIGHT_SCANCODE
     };
-
-
-     private static final int[] sProxiCheckedGestures = new int[]{
-        GESTURE_C_SCANCODE,
-        GESTURE_E_SCANCODE,
-        GESTURE_V_SCANCODE,
-        GESTURE_W_SCANCODE,
-        GESTURE_S_SCANCODE,
-        GESTURE_Z_SCANCODE,
-	GESTURE_SWIPE_UP,
-	GESTURE_SWIPE_DOWN,
-	GESTURE_SWIPE_LEFT,
-	GESTURE_SWIPE_RIGHT,
-        GESTURE_DOUBLE_TAP,
-        KEY_DOUBLE_TAP
-     };
-
-
-    private static final int[] sHandledGestures = new int[]{
-        KEYCODE_SLIDER_TOP,
-        KEYCODE_SLIDER_MIDDLE,
-        KEYCODE_SLIDER_BOTTOM
-      };
 
     private final Context mContext;
     private final AudioManager mAudioManager;
@@ -165,7 +132,7 @@ public class KeyHandler implements DeviceKeyHandler {
         mContext.registerReceiver(mScreenStateReceiver, screenStateFilter);
         mProximityWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 "ProximityWakeLock");
-        mHandler = new Handler(); 
+        mHandler = new Handler();
         mGestureWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
                 "GestureWakeLock");
 
@@ -187,6 +154,13 @@ public class KeyHandler implements DeviceKeyHandler {
             KeyEvent event = (KeyEvent) msg.obj;
             String action = null;
             switch(event.getScanCode()) {
+            case GESTURE_DOUBLE_TAP_SCANCODE:
+                action = getGestureSharedPreferences()
+                        .getString(ScreenOffGesture.PREF_GESTURE_DOUBLE_TAP,
+                        ActionConstants.ACTION_WAKE_DEVICE);
+                        doHapticFeedback();
+                break;
+
             case GESTURE_C_SCANCODE:
                 action = getGestureSharedPreferences()
                         .getString(ScreenOffGesture.PREF_GESTURE_C,
@@ -223,34 +197,28 @@ public class KeyHandler implements DeviceKeyHandler {
                         ActionConstants.ACTION_MEDIA_NEXT);
                         doHapticFeedback();
                 break;
-			case GESTURE_SWIPE_UP:
+			case GESTURE_SWIPE_UP_SCANCODE:
                 action = getGestureSharedPreferences()
                         .getString(ScreenOffGesture.PREF_GESTURE_UP,
                         ActionConstants.ACTION_WAKE_DEVICE);
                         doHapticFeedback();
                 break;
-            case GESTURE_SWIPE_DOWN:
+            case GESTURE_SWIPE_DOWN_SCANCODE:
                 action = getGestureSharedPreferences()
                         .getString(ScreenOffGesture.PREF_GESTURE_DOWN,
                         ActionConstants.ACTION_VIB_SILENT);
                         doHapticFeedback();
                 break;
-            case GESTURE_SWIPE_LEFT:
+            case GESTURE_SWIPE_LEFT_SCANCODE:
                 action = getGestureSharedPreferences()
                         .getString(ScreenOffGesture.PREF_GESTURE_LEFT,
                         ActionConstants.ACTION_MEDIA_PREVIOUS);
                         doHapticFeedback();
                 break;
-            case GESTURE_SWIPE_RIGHT:
+            case GESTURE_SWIPE_RIGHT_SCANCODE:
                 action = getGestureSharedPreferences()
                         .getString(ScreenOffGesture.PREF_GESTURE_RIGHT,
                         ActionConstants.ACTION_MEDIA_NEXT);
-                        doHapticFeedback();
-                break;
-            case GESTURE_DOUBLE_TAP:
-                action = getGestureSharedPreferences()
-                        .getString(ScreenOffGesture.PREF_GESTURE_DOUBLE_TAP,
-                        ActionConstants.ACTION_WAKE_DEVICE);
                         doHapticFeedback();
                 break;
     }
@@ -288,14 +256,15 @@ public class KeyHandler implements DeviceKeyHandler {
         if (mVibrator == null) {
             return;
         }
-		if (SystemProperties.getBoolean(PROP_HAPTIC_FEEDBACK, true)) {
+        boolean enabled = getGestureSharedPreferences().getInt(Utils.TOUCHSCREEN_GESTURE_HAPTIC_FEEDBACK, 1) != 0;
+        if (enabled) {
             mVibrator.vibrate(50);
-		}
+        }
     }
 
     private SharedPreferences getGestureSharedPreferences() {
         return mGestureContext.getSharedPreferences(
-                ScreenOffGesture.GESTURE_SETTINGS,
+                Utils.PREFERENCES,
                 Context.MODE_PRIVATE | Context.MODE_MULTI_PROCESS);
     }
 
