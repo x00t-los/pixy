@@ -53,6 +53,7 @@ PRODUCT_PACKAGES += \
     LatinIMEGooglePrebuilt \
     LocationHistoryPrebuilt \
     MarkupGoogle \
+    Photos \
     PrebuiltDeskClockGoogle \
     SoundPickerPrebuilt \
     talkback \
