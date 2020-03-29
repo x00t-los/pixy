@@ -38,7 +38,6 @@ PRODUCT_PACKAGES += \
 
 # System priv-app
 PRODUCT_PACKAGES += \
-    GoogleDocumentsUIPrebuilt \
     GoogleExtServicesPrebuilt \
     GooglePermissionControllerPrebuilt
 
@@ -74,6 +73,7 @@ PRODUCT_PACKAGES += \
     PixelSetupWizard \
     PrebuiltGmsCoreQt \
     SetupWizardPrebuilt \
+    TurboPrebuilt \
     Velvet \
     WallpaperPickerGoogleRelease \
     WellbeingPrebuilt
