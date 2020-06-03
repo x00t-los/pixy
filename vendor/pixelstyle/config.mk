@@ -17,7 +17,8 @@ LOCAL_PATH := vendor/pixelstyle
 # Prebuilt Packages
 PRODUCT_PACKAGES += \
     OPScreenRecorder \
-    GooglePermissionControllerOverlay
+    GooglePermissionControllerOverlay \
+    SoundPickerPrebuilt
 
 ifeq ($(TARGET_GAPPS_ARCH),arm64)
 PRODUCT_PACKAGES += \

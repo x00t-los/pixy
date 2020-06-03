@@ -54,7 +54,6 @@ PRODUCT_PACKAGES += \
     MarkupGoogle \
     Photos \
     PrebuiltDeskClockGoogle \
-    SoundPickerPrebuilt \
     talkback \
     WebViewGoogle
 
