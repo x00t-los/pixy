@@ -1,0 +1,29 @@
+From 72d54824d1a88a34c29edfca6415fee45fff8d24 Mon Sep 17 00:00:00 2001
+From: Kyle Harrison <khwebmail@gmail.com>
+Date: Fri, 10 Jul 2020 11:49:31 +0100
+Subject: [PATCH] screenrecord: Switch back to H264
+
+Screen record uses the low ram flag to determine which codec and bitrate to use.
+We don't set low ram but wish to force use of the H264 codec - so hardcode it to use the low ram settings.
+
+Change-Id: I591f817b7282256f665241bca58d634cab240986
+---
+ .../src/com/android/systemui/screenrecord/RecordingService.java | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/screenrecord/RecordingService.java b/packages/SystemUI/src/com/android/systemui/screenrecord/RecordingService.java
+index b526024d98c..56d90c28431 100644
+--- a/packages/SystemUI/src/com/android/systemui/screenrecord/RecordingService.java
++++ b/packages/SystemUI/src/com/android/systemui/screenrecord/RecordingService.java
+@@ -308,7 +308,7 @@ public class RecordingService extends Service {
+             mWindowManager.getDefaultDisplay().getRealMetrics(metrics);
+             int screenWidth = metrics.widthPixels;
+             int screenHeight = metrics.heightPixels;
+-            mIsLowRamEnabled = SystemProperties.get("ro.config.low_ram").equals("true");
++            mIsLowRamEnabled = true; //SystemProperties.get("ro.config.low_ram").equals("true");
+ 
+             switch (mVideoBitrateOpt) {
+                 case 1:
+-- 
+2.27.0
+
